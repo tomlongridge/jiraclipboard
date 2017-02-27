@@ -1,4 +1,3 @@
-debugger;
 var key = document.location.pathname;
 key = key.substring(key.lastIndexOf('/') + 1);
 chrome.runtime.sendMessage(
@@ -8,4 +7,4 @@ chrome.runtime.sendMessage(
     "href": document.location.toString(),
     "status": $('#status-val').text().trim(),
     "assignee": $('#assignee-val').text().trim()
-  }, null);
+}, null);

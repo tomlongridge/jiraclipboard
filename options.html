@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <link rel="stylesheet" type="text/css" href="style.css"></link>
+</head>
 <body>
 
-  <label>
-    JIRA:
-    <input type="text" id="jiraURL" />
-  </label>
+  <p>
+    <label>
+      JIRA:
+      https://<input type="text" id="jiraURL" />/
+    </label>
+  </p>
 
   <button id="save">Save</button>
-
-  <div id="status"></div>
+  <div id="message"></div>
 
   <script src="options.js"></script>
 

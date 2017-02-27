@@ -1,9 +1,6 @@
 var allData = new Map();
-var activeData = {};
+var activeData = null;
 var modeActiveOnly = false;
-chrome.storage.sync.get("activeOnly", function(options) {
-  setActiveOnly(options.activeOnly);
-});
 
 function executeScript(tabId = null) {
   chrome.tabs.executeScript(tabId, {file: "script.js"});
@@ -11,6 +8,11 @@ function executeScript(tabId = null) {
 
 function setActiveOnly(enabled) {
   modeActiveOnly = enabled;
+  if (enabled) {
+    allData.clear();
+  } else {
+    activeData = null;
+  }
   chrome.storage.sync.set({ activeOnly: enabled }, null);
 }
 
@@ -39,12 +41,12 @@ function getSingleItem(item) {
 }
 
 function addData(newData) {
-  if (modeActiveOnly) {
-    activeData = newData;
-    allData.clear();
-  } else {
-    activeData = null;
-    allData.set(newData.key, newData);
+  if (newData.title.length > 0) {
+    if (modeActiveOnly) {
+      activeData = newData;
+    } else {
+      allData.set(newData.key, newData);
+    }
   }
   render();
   copyDataToClipboard();
@@ -82,11 +84,16 @@ function copyDataToClipboard() {
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('copySingleBtn').addEventListener('click', runActiveTab);
   document.getElementById('copyListBtn').addEventListener('click', runAllTabs);
-  if (modeActiveOnly) {
-    runActiveTab();
-  } else {
-    runAllTabs();
-  }
+  debugger;
+  chrome.storage.sync.get("activeOnly", function(options) {
+    setActiveOnly(options.activeOnly);
+    if (modeActiveOnly) {
+      runActiveTab();
+    } else {
+      runAllTabs();
+    }
+  });
+
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     addData(request);
   });

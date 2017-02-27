@@ -3,7 +3,7 @@ function saveOptions() {
     jiraURL: document.getElementById('jiraURL').value
   }, function() {
     // Update status to let user know options were saved.
-    var status = document.getElementById('status');
+    var status = document.getElementById('message');
     status.textContent = 'URL saved.';
     setTimeout(function() {
       status.textContent = '';
@@ -13,7 +13,7 @@ function saveOptions() {
 
 function getOptions() {
   chrome.storage.sync.get({
-    jiraURL: jiraURL
+    jiraURL: ''
   }, function(items) {
     document.getElementById('jiraURL').value = items.jiraURL;
   });
