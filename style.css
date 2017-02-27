@@ -1,0 +1,12 @@
+body {
+  width: 600px;
+}
+
+.jiraPara {
+  margin-left: 40px;
+}
+
+#message {
+  float: right;
+  color: green;
+}
