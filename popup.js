@@ -1,6 +1,7 @@
 var allData = new Map();
 var activeData = null;
 var modeActiveOnly = false;
+var formatString = null;
 
 function executeScript(tabId = null) {
   chrome.tabs.executeScript(tabId, {file: "script.js"});
@@ -37,7 +38,12 @@ function getListItem(item) {
 }
 
 function getSingleItem(item) {
-  return '<a href="' + item.href + '">' + item.key + '</a>: ' + item.title + ' (<strong>' + item.status + '</strong> - ' + item.assignee + ')';
+  return formatString.
+    replace("{key}", item.key).
+    replace("{href}", item.href).
+    replace("{title}", item.title).
+    replace("{status}", item.status).
+    replace("{assignee}", item.assignee);
 }
 
 function addData(newData) {
@@ -84,9 +90,9 @@ function copyDataToClipboard() {
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('copySingleBtn').addEventListener('click', runActiveTab);
   document.getElementById('copyListBtn').addEventListener('click', runAllTabs);
-  debugger;
-  chrome.storage.sync.get("activeOnly", function(options) {
+  chrome.storage.sync.get(["activeOnly", "formatString"], function(options) {
     setActiveOnly(options.activeOnly);
+    formatString = options.formatString;
     if (modeActiveOnly) {
       runActiveTab();
     } else {

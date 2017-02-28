@@ -1,10 +1,10 @@
 function saveOptions() {
   chrome.storage.sync.set({
-    jiraURL: document.getElementById('jiraURL').value
+    jiraURL: document.getElementById('jiraURL').value,
+    formatString: document.getElementById('formatString').value
   }, function() {
-    // Update status to let user know options were saved.
     var status = document.getElementById('message');
-    status.textContent = 'URL saved.';
+    status.textContent = 'Changes saved.';
     setTimeout(function() {
       status.textContent = '';
     }, 2000);
@@ -13,9 +13,11 @@ function saveOptions() {
 
 function getOptions() {
   chrome.storage.sync.get({
-    jiraURL: ''
+    jiraURL: '',
+    formatString: '<a href="{href}">{key}</a>: {title} (<strong>{status}</strong> - {assignee})'
   }, function(items) {
     document.getElementById('jiraURL').value = items.jiraURL;
+    document.getElementById('formatString').value = items.formatString;
   });
 }
 
