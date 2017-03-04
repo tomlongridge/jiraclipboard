@@ -1,0 +1,33 @@
+/* HTML standard */
+
+body {
+  width: 600px;
+}
+
+/* Shared */
+
+#message {
+  float: right;
+  color: green;
+}
+
+/* Options page */
+
+label.options {
+    width: 90px;
+    display: block;
+    float: left;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.url {
+  font-family: monospace;
+  font-size: 9pt;
+}
+
+/* Popup */
+
+.jiraPara {
+  margin-left: 40px;
+}

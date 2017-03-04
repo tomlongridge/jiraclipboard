@@ -2,6 +2,7 @@ var key = document.location.pathname;
 key = key.substring(key.lastIndexOf('/') + 1);
 chrome.runtime.sendMessage(
   {
+    "type": 'new-issue',
     "key": key,
     "title": $('#summary-val').text().trim(),
     "href": document.location.toString(),

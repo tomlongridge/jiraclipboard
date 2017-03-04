@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="/css/style.css"></link>
+  <script src="/lib/jquery-3.1.1.min.js"></script>
+</head>
+<body>
+
+  <p>
+    <label for="jiraURL" class="options">
+      JIRA Host:
+    </label>
+    <span class="url">https://
+      <input type="text" id="jiraURL" size="32" />
+      /
+    </span>
+  </p>
+  <p>
+    <label for="formatString" class="options">
+      Format string:
+    </label>
+    <input type="text" id="formatString" size="75" />
+  </p>
+
+  <button id="save">Save</button>
+  <div id="message"></div>
+
+  <script src="/src/options.js"></script>
+
+</body>
+</html>

@@ -4,7 +4,7 @@ var modeActiveOnly = false;
 var formatString = null;
 
 function executeScript(tabId = null) {
-  chrome.tabs.executeScript(tabId, {file: "script.js"});
+  chrome.tabs.executeScript(tabId, {file: "/src/script.js"});
 }
 
 function setActiveOnly(enabled) {
@@ -90,17 +90,29 @@ function copyDataToClipboard() {
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('copySingleBtn').addEventListener('click', runActiveTab);
   document.getElementById('copyListBtn').addEventListener('click', runAllTabs);
-  chrome.storage.sync.get(["activeOnly", "formatString"], function(options) {
-    setActiveOnly(options.activeOnly);
-    formatString = options.formatString;
-    if (modeActiveOnly) {
-      runActiveTab();
+  $('#optionsLink').click(function() {
+    chrome.runtime.openOptionsPage();
+  });
+  chrome.storage.sync.get(["activeOnly", "formatString", "jiraURL"], function(options) {
+    if (options.jiraURL.length > 0) {
+      $('#noOptions').hide();
+      $('#browsePanel').show();
+      setActiveOnly(options.activeOnly);
+      formatString = options.formatString;
+      if (modeActiveOnly) {
+        runActiveTab();
+      } else {
+        runAllTabs();
+      }
     } else {
-      runAllTabs();
+      $('#noOptions').show();
+      $('#browsePanel').hide();
     }
   });
 
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    addData(request);
+    if (request.type == 'new-issue') {
+      addData(request);
+    }
   });
 });
