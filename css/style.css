@@ -31,3 +31,7 @@ label.options {
 .jiraPara {
   margin-left: 40px;
 }
+
+#browsePanel, #loadingPanel, #noOptions {
+  display: none;
+}

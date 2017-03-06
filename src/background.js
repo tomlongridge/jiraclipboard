@@ -7,6 +7,8 @@ chrome.runtime.onInstalled.addListener(function() {
     if (!options.formatString) {
       options.formatString = '<a href="{href}">{key}</a>: {title} (<strong>{status}</strong> - {assignee})';
     }
+    options.activeOnly = false;
+    options.includeListPages = true;
     chrome.storage.sync.set(options);
 
     setPageRules(options.jiraURL);

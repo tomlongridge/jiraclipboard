@@ -6,10 +6,14 @@
     <script src="/lib/jquery-3.1.1.min.js"></script>
   </head>
   <body>
+    <div id="loadingPanel">
+      <p>Loading&hellip;</p>
+    </div>
     <div id="browsePanel">
-      Copy: 
+      Copy:
       <button id="copySingleBtn">This</button>
       <button id="copyListBtn">All</button>
+      <label><input type="checkbox" id="includeListPages"> Include List Pages</label>
       <div id="message"></div>
       <div id="jiraDataPlaceholder"><p id="jiraData" class="jiraPara">No issues</p></div>
     </div>

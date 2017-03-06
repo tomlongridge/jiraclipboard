@@ -1,36 +1,55 @@
 var allData = new Map();
-var activeData = null;
-var modeActiveOnly = false;
 var formatString = null;
-
-function executeScript(tabId = null) {
-  chrome.tabs.executeScript(tabId, {file: "/src/script.js"});
-}
+var jiraURL = null;
 
 function setActiveOnly(enabled) {
-  modeActiveOnly = enabled;
-  if (enabled) {
-    allData.clear();
-  } else {
-    activeData = null;
-  }
-  chrome.storage.sync.set({ activeOnly: enabled }, null);
+  chrome.storage.sync.set({ activeOnly: enabled }, runInTabs);
 }
 
-function runAllTabs() {
-  setActiveOnly(false);
-  chrome.storage.sync.get("jiraURL", function(options) {
-    chrome.tabs.query({currentWindow: true, url: 'https://' + options.jiraURL + '/*'}, function(tabs) {
-      for (var i = 0; i < tabs.length; i++) {
-        executeScript(tabs[i].id);
-      }
+function setIncludeListPages(include) {
+  chrome.storage.sync.set({ includeListPages: include }, runInTabs);
+}
+
+function toggleLoading(on) {
+  if(on) {
+    $('#loadingPanel').show();
+    $('#browsePanel').hide();
+  } else {
+    $('#loadingPanel').hide();
+    $('#browsePanel').show();
+  }
+}
+
+function runInTabs() {
+  toggleLoading(true);
+  allData.clear();
+  chrome.storage.sync.get(["jiraURL", "activeOnly", "includeListPages"], function(options) {
+    var tabQuery = {currentWindow: true, url: 'https://' + options.jiraURL + '/*'};
+    if (options.activeOnly) {
+      tabQuery["active"] = true;
+    }
+    chrome.tabs.query(tabQuery, function(tabs) {
+      var tabResponseCount = 0;
+      $.each(tabs, function(index, tab) {
+        chrome.tabs.sendMessage(tab.id, {type: 'send-issues', includeListPages: options.includeListPages}, null, function(response) {
+          if (typeof response !== "undefined") {
+            $.each(response.newData, function(key, issue) {
+              allData.set(key, issue);
+            });
+          } else {
+            console.error('Empty issue message from tab - possibly need to reload?');
+          }
+          tabResponseCount++;
+
+          if (tabResponseCount == tabs.length) {
+            render();
+            copyDataToClipboard();
+            toggleLoading(false);
+          }
+        });
+      });
     });
   });
-}
-
-function runActiveTab() {
-  setActiveOnly(true);
-  executeScript();
 }
 
 function getListItem(item) {
@@ -40,79 +59,77 @@ function getListItem(item) {
 function getSingleItem(item) {
   return formatString.
     replace("{key}", item.key).
-    replace("{href}", item.href).
+    replace("{href}", getIssueURL(item.key)).
     replace("{title}", item.title).
     replace("{status}", item.status).
     replace("{assignee}", item.assignee);
 }
 
-function addData(newData) {
-  if (newData.title.length > 0) {
-    if (modeActiveOnly) {
-      activeData = newData;
-    } else {
-      allData.set(newData.key, newData);
-    }
-  }
-  render();
-  copyDataToClipboard();
+function getIssueURL(key) {
+  return 'https://' + jiraURL + '/browse/' + key;
 }
 
 function render() {
   $('#jiraDataPlaceholder').html('');
-  if (activeData) {
+  if (allData.size == 0) {
+    $('#jiraDataPlaceholder').append('<p id="jiraData" class="jiraPara">No issues</p>');
+  } else if (allData.size == 1) {
     $('#jiraDataPlaceholder').append('<p id="jiraData" class="jiraPara"></p>');
-    $('#jiraData').append(getSingleItem(activeData));
-  } else if (allData.size > 0) {
+    $('#jiraData').append(getSingleItem(allData.values().next().value));
+  } else {
     $('#jiraDataPlaceholder').append('<ul id="jiraData"></ul>');
     allData.forEach(function(item) {
       $('#jiraData').append(getListItem(item));
     });
-  } else {
-    $('#jiraDataPlaceholder').append('<p id="jiraData" class="jiraPara">No issues</p>');
   }
 }
 
 function copyDataToClipboard() {
-  var jiraData = document.querySelector('#jiraData');
-  var range = document.createRange();
-  window.getSelection().removeAllRanges();
-  range.selectNode(jiraData);
-  window.getSelection().addRange(range);
-  document.execCommand('copy');
-  window.getSelection().removeAllRanges();
-  $('#message').text("Copied to clipboard");
-  setTimeout(function() {
-    $('#message').text("");
-  }, 2000);
+  if (allData.size > 0) {
+    var jiraData = document.querySelector('#jiraData');
+    var range = document.createRange();
+    window.getSelection().removeAllRanges();
+    range.selectNode(jiraData);
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+    $('#message').text("Copied to clipboard");
+    setTimeout(function() {
+      $('#message').text("");
+    }, 2000);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('copySingleBtn').addEventListener('click', runActiveTab);
-  document.getElementById('copyListBtn').addEventListener('click', runAllTabs);
-  $('#optionsLink').click(function() {
-    chrome.runtime.openOptionsPage();
-  });
-  chrome.storage.sync.get(["activeOnly", "formatString", "jiraURL"], function(options) {
+  toggleLoading();
+  chrome.storage.sync.get(["activeOnly", "includeListPages", "formatString", "jiraURL"], function(options) {
+    $('#copySingleBtn').click(function() {
+      setActiveOnly(true);
+      runInTabs(true);
+    });
+    $('#copyListBtn').click(function() {
+      setActiveOnly(false);
+      runInTabs(false);
+    });
+    $('#includeListPages').change(function() {
+      setIncludeListPages(this.checked);
+
+    });
+    $('#optionsLink').click(function() {
+      chrome.runtime.openOptionsPage();
+    });
     if (options.jiraURL.length > 0) {
       $('#noOptions').hide();
       $('#browsePanel').show();
-      setActiveOnly(options.activeOnly);
+      $('#includeListPages').prop('checked', options.includeListPages);
       formatString = options.formatString;
-      if (modeActiveOnly) {
-        runActiveTab();
-      } else {
-        runAllTabs();
-      }
+      jiraURL = options.jiraURL;
+      setActiveOnly(options.activeOnly);
+      setIncludeListPages(options.includeListPages);
+      runInTabs(options.activeOnly, options.includeListPages);
     } else {
       $('#noOptions').show();
       $('#browsePanel').hide();
-    }
-  });
-
-  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.type == 'new-issue') {
-      addData(request);
     }
   });
 });
