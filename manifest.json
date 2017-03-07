@@ -3,7 +3,7 @@
 
   "name": "JIRA Clipboard",
   "description": "Quickly exports issue open in the current tab (or all open tabs) to the clipboard",
-  "version": "1.4",
+  "version": "1.4.1",
 
   "background": {
     "scripts": ["src/background.js"],

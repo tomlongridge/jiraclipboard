@@ -33,8 +33,8 @@ function runInTabs() {
       $.each(tabs, function(index, tab) {
         chrome.tabs.sendMessage(tab.id, {type: 'send-issues', includeListPages: options.includeListPages}, null, function(response) {
           if (typeof response !== "undefined") {
-            $.each(response.newData, function(key, issue) {
-              allData.set(key, issue);
+            $.each(response.newData, function(index, issue) {
+              allData.set(issue.key, issue);
             });
           } else {
             console.error('Empty issue message from tab - possibly need to reload?');
@@ -105,11 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
   chrome.storage.sync.get(["activeOnly", "includeListPages", "formatString", "jiraURL"], function(options) {
     $('#copySingleBtn').click(function() {
       setActiveOnly(true);
-      runInTabs(true);
     });
     $('#copyListBtn').click(function() {
       setActiveOnly(false);
-      runInTabs(false);
     });
     $('#includeListPages').change(function() {
       setIncludeListPages(this.checked);
@@ -124,9 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
       $('#includeListPages').prop('checked', options.includeListPages);
       formatString = options.formatString;
       jiraURL = options.jiraURL;
-      setActiveOnly(options.activeOnly);
-      setIncludeListPages(options.includeListPages);
-      runInTabs(options.activeOnly, options.includeListPages);
+      runInTabs();
     } else {
       $('#noOptions').show();
       $('#browsePanel').hide();
