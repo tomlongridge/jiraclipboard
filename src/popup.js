@@ -43,8 +43,8 @@ function runInTabs() {
 
           if (tabResponseCount == tabs.length) {
             render();
-            copyDataToClipboard();
             toggleLoading(false);
+            copyDataToClipboard();
           }
         });
       });
