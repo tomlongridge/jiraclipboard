@@ -1,6 +1,6 @@
 function saveOptions() {
-  var jiraURL = $('#jiraURL').text();
-  var formatString = $('#formatString').text();
+  var jiraURL = $('#jiraURL').val();
+  var formatString = $('#formatString').val();
 
   if (jiraURL.length === 0) {
     $('#jiraURL').css('border', '1px solid red');
@@ -28,14 +28,12 @@ function getOptions() {
     jiraURL: '',
     formatString: '<a href="{href}">{key}</a>: {title} (<strong>{status}</strong> - {assignee})'
   }, function(items) {
-    $('#jiraURL').text(items.jiraURL);
-    $('#formatString').text(items.formatString);
+    $('#jiraURL').val(items.jiraURL);
+    $('#formatString').val(items.formatString);
   });
 }
 
 $(document).ready(function() {
   $('#save').click(saveOptions);
-  $('#jiraURL').text('items.jiraURL');
-  $('#formatString').text('items.formatString');
   getOptions();
 });

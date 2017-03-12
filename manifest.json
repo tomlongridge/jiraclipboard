@@ -1,16 +1,16 @@
 {
   "manifest_version": 2,
 
-  "name": "JIRA Clipboard",
-  "description": "Quickly exports issue open in the current tab (or all open tabs) to the clipboard",
-  "version": "1.4.2",
+  "name": "@@name",
+  "description": "@@description",
+  "version": "@@version",
 
   "background": {
-    /* env:dev */
+    /* env:dev *#/
     "scripts": ["src/background/background.js"],
     /* env:dev:end */
-    /* env:prod *#/
-    "scripts": ["dist/jiraclipboard.background.min.js"],
+    /* env:prod */
+    "scripts": ["lib/jiraclipboard.background.min.js"],
     /* env:prod:end */
     "persistent": false
   },
@@ -29,11 +29,11 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      /* env:dev */
+      /* env:dev *#/
       "js": ["lib/jquery-3.1.1.min.js", "src/content/script.js"]
       /* env:dev:end */
-      /* env:prod *#/
-      "js": ["dist/jiraclipboard.content.min.js"]
+      /* env:prod */
+      "js": ["lib/jiraclipboard.content.min.js"]
       /* env:prod:end */
     }
   ],

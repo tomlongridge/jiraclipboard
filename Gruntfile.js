@@ -7,20 +7,20 @@ module.exports = function(grunt) {
         separator: ';'
       },
       plugin: {
-        src: ['src/plugin/*.js'],
-        dest: 'dist/<%= pkg.name %>.plugin.js'
+        src: ['lib/jquery-3.1.1.min.js', 'src/plugin/*.js'],
+        dest: 'dist/lib/<%= pkg.name %>.plugin.min.js'
       },
       pluginOptions: {
-        src: ['src/options/*.js'],
-        dest: 'dist/<%= pkg.name %>.options.js'
+        src: ['lib/jquery-3.1.1.min.js', 'src/options/*.js'],
+        dest: 'dist/lib/<%= pkg.name %>.options.min.js'
       },
       background: {
-        src: ['src/background/*.js'],
-        dest: 'dist/<%= pkg.name %>.background.js'
+        src: ['lib/jquery-3.1.1.min.js', 'src/background/*.js'],
+        dest: 'dist/lib/<%= pkg.name %>.background.min.js'
       },
       content: {
-        src: ['src/content/*.js'],
-        dest: 'dist/<%= pkg.name %>.content.js'
+        src: ['lib/jquery-3.1.1.min.js', 'src/content/*.js'],
+        dest: 'dist/lib/<%= pkg.name %>.content.min.js'
       }
     },
     uglify: {
@@ -29,10 +29,10 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          'dist/<%= pkg.name %>.plugin.min.js': ['<%= concat.plugin.dest %>'],
-          'dist/<%= pkg.name %>.options.min.js': ['<%= concat.options.dest %>'],
-          'dist/<%= pkg.name %>.background.min.js': ['<%= concat.background.dest %>'],
-          'dist/<%= pkg.name %>.content.min.js': ['<%= concat.content.dest %>'],
+          '<%= concat.plugin.dest %>': ['<%= concat.plugin.dest %>'],
+          '<%= concat.pluginOptions.dest %>': ['<%= concat.pluginOptions.dest %>'],
+          '<%= concat.background.dest %>': ['<%= concat.background.dest %>'],
+          '<%= concat.content.dest %>': ['<%= concat.content.dest %>'],
         }
       }
     },
@@ -52,7 +52,7 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      files: ['<%= jshint.files %>'],
+      files: ['<%= jshint.files %>', 'pages/*.html'],
       tasks: ['jshint', 'qunit']
     },
     dev_prod_switch: {
@@ -71,7 +71,41 @@ module.exports = function(grunt) {
           }]
         }
     },
-    clean: ['dist']
+    copy: {
+      main: {
+        files: [
+          { expand: true, src: ['pages/**'], dest: 'dist'},
+          { expand: true, src: ['img/**'], dest: 'dist'},
+          { expand: true, src: ['css/**'], dest: 'dist'},
+          { expand: true, src: ['manifest.json'], dest: 'dist'}
+        ]
+      }
+    },
+    compress: {
+      main: {
+        options: {
+          archive: 'deploy/<%= pkg.name %>.<%= pkg.version %>.zip'
+        },
+        files: [
+          { expand: true, cwd: 'dist/', src: ['**'], dest: '.' }
+        ]
+      }
+    },
+    replace: {
+      version: {
+        options: {
+          patterns: [
+            { match: 'name', replacement: '<%= pkg.name %>' },
+            { match: 'version', replacement: '<%= pkg.version %>' },
+            { match: 'description', replacement: '<%= pkg.description %>' }
+          ]
+        },
+        files: [
+          { src: ['manifest.json'], dest: 'dist/' }
+        ]
+      }
+    },
+    clean: ['dist','deploy']
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -80,10 +114,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-dev-prod-switch');
 
   grunt.registerTask('test', ['jshint', 'qunit']);
 
-  grunt.registerTask('default', ['clean', 'dev_prod_switch', 'jshint', 'qunit', 'concat', 'uglify']);
+  grunt.registerTask('default', ['clean', 'dev_prod_switch', 'replace', 'jshint', 'qunit', 'concat', 'uglify', 'copy', 'replace', 'compress']);
 
 };
