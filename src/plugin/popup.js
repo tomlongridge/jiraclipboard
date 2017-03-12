@@ -26,7 +26,7 @@ function runInTabs() {
   chrome.storage.sync.get(["jiraURL", "activeOnly", "includeListPages"], function(options) {
     var tabQuery = {currentWindow: true, url: 'https://' + options.jiraURL + '/*'};
     if (options.activeOnly) {
-      tabQuery["active"] = true;
+      tabQuery.active = true;
     }
     chrome.tabs.query(tabQuery, function(tabs) {
       var tabResponseCount = 0;
@@ -71,9 +71,9 @@ function getIssueURL(key) {
 
 function render() {
   $('#jiraDataPlaceholder').html('');
-  if (allData.size == 0) {
+  if (allData.size === 0) {
     $('#jiraDataPlaceholder').append('<p id="jiraData" class="jiraPara">No issues</p>');
-  } else if (allData.size == 1) {
+  } else if (allData.size === 1) {
     $('#jiraDataPlaceholder').append('<p id="jiraData" class="jiraPara"></p>');
     $('#jiraData').append(getSingleItem(allData.values().next().value));
   } else {
@@ -100,7 +100,7 @@ function copyDataToClipboard() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
   toggleLoading();
   chrome.storage.sync.get(["activeOnly", "includeListPages", "formatString", "jiraURL"], function(options) {
     $('#copySingleBtn').click(function() {

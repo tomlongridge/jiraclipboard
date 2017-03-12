@@ -6,7 +6,12 @@
   "version": "1.4.2",
 
   "background": {
-    "scripts": ["src/background.js"],
+    /* env:dev */
+    "scripts": ["src/background/background.js"],
+    /* env:dev:end */
+    /* env:prod *#/
+    "scripts": ["dist/jiraclipboard.background.min.js"],
+    /* env:prod:end */
     "persistent": false
   },
 
@@ -21,10 +26,15 @@
                    "http://*/",
                    "https://*/" ],
 
-  "content_scripts" : [
+  "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["lib/jquery-3.1.1.min.js", "src/script.js"]
+      /* env:dev */
+      "js": ["lib/jquery-3.1.1.min.js", "src/content/script.js"]
+      /* env:dev:end */
+      /* env:prod *#/
+      "js": ["dist/jiraclipboard.content.min.js"]
+      /* env:prod:end */
     }
   ],
 

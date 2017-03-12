@@ -1,10 +1,10 @@
 function saveOptions() {
-  var jiraURL = document.getElementById('jiraURL').value;
-  var formatString = document.getElementById('formatString').value;
+  var jiraURL = $('#jiraURL').text();
+  var formatString = $('#formatString').text();
 
-  if (jiraURL.length == 0) {
+  if (jiraURL.length === 0) {
     $('#jiraURL').css('border', '1px solid red');
-  } else if (formatString.length == 0) {
+  } else if (formatString.length === 0) {
     $('#formatString').css('border', '1px solid red');
   } else {
     chrome.storage.sync.set({
@@ -14,10 +14,10 @@ function saveOptions() {
       // Update page action rules
       chrome.runtime.sendMessage({type: 'options', jiraURL: jiraURL}, null);
 
-      var status = document.getElementById('message');
-      status.textContent = 'Changes saved.';
+      var status = $('#message');
+      status.text('Changes saved.');
       setTimeout(function() {
-        status.textContent = '';
+        status.text('');
       }, 2000);
     });
   }
@@ -28,10 +28,14 @@ function getOptions() {
     jiraURL: '',
     formatString: '<a href="{href}">{key}</a>: {title} (<strong>{status}</strong> - {assignee})'
   }, function(items) {
-    document.getElementById('jiraURL').value = items.jiraURL;
-    document.getElementById('formatString').value = items.formatString;
+    $('#jiraURL').text(items.jiraURL);
+    $('#formatString').text(items.formatString);
   });
 }
 
-document.addEventListener('DOMContentLoaded', getOptions);
-document.getElementById('save').addEventListener('click', saveOptions);
+$(document).ready(function() {
+  $('#save').click(saveOptions);
+  $('#jiraURL').text('items.jiraURL');
+  $('#formatString').text('items.formatString');
+  getOptions();
+});

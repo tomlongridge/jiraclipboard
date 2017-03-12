@@ -25,7 +25,7 @@ function setPageRules(jiraURL) {
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
       // If a URL is given, only enable extention if it matches the hostEquals
       // Otherwise always show so the options can be set
-      if (jiraURL.length == 0) {
+      if (jiraURL.length === 0) {
         chrome.declarativeContent.onPageChanged.addRules([
           {
             conditions: [
