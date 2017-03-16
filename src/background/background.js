@@ -1,3 +1,5 @@
+var $ = require('jQuery');
+
 chrome.runtime.onInstalled.addListener(function() {
   // Initialise options
   chrome.storage.sync.get(['jiraURL', 'formatString'], function(options) {

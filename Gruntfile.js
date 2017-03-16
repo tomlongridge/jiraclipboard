@@ -2,37 +2,35 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    concat: {
-      options: {
-        separator: ';'
-      },
+    browserify: {
       plugin: {
-        src: ['lib/jquery-3.1.1.min.js', 'src/plugin/*.js'],
-        dest: 'dist/lib/<%= pkg.name %>.plugin.min.js'
+        src: ['src/plugin/*.js'],
+        dest: 'dist/lib/<%= pkg.name %>.plugin.built.js'
       },
       pluginOptions: {
-        src: ['lib/jquery-3.1.1.min.js', 'src/options/*.js'],
-        dest: 'dist/lib/<%= pkg.name %>.options.min.js'
+        src: ['src/options/*.js'],
+        dest: 'dist/lib/<%= pkg.name %>.options.built.js'
       },
       background: {
-        src: ['lib/jquery-3.1.1.min.js', 'src/background/*.js'],
-        dest: 'dist/lib/<%= pkg.name %>.background.min.js'
+        src: ['src/background/*.js'],
+        dest: 'dist/lib/<%= pkg.name %>.background.built.js'
       },
       content: {
-        src: ['lib/jquery-3.1.1.min.js', 'src/content/*.js'],
-        dest: 'dist/lib/<%= pkg.name %>.content.min.js'
+        src: ['src/content/*.js'],
+        dest: 'dist/lib/<%= pkg.name %>.content.built.js'
       }
     },
     uglify: {
       options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+        banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
+        sourceMap: true
       },
       dist: {
         files: {
-          '<%= concat.plugin.dest %>': ['<%= concat.plugin.dest %>'],
-          '<%= concat.pluginOptions.dest %>': ['<%= concat.pluginOptions.dest %>'],
-          '<%= concat.background.dest %>': ['<%= concat.background.dest %>'],
-          '<%= concat.content.dest %>': ['<%= concat.content.dest %>'],
+          'dist/lib/<%= pkg.name %>.plugin.min.js': ['<%= browserify.plugin.dest %>'],
+          'dist/lib/<%= pkg.name %>.options.min.js': ['<%= browserify.pluginOptions.dest %>'],
+          'dist/lib/<%= pkg.name %>.background.min.js': ['<%= browserify.background.dest %>'],
+          'dist/lib/<%= pkg.name %>.content.min.js': ['<%= browserify.content.dest %>'],
         }
       }
     },
@@ -87,7 +85,7 @@ module.exports = function(grunt) {
           archive: 'deploy/<%= pkg.name %>.<%= pkg.version %>.zip'
         },
         files: [
-          { expand: true, cwd: 'dist/', src: ['**'], dest: '.' }
+          { expand: true, cwd: 'dist/', src: ['**', '!**/*.map', '!**/*.built.js'], dest: '.' }
         ]
       }
     },
@@ -112,7 +110,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-compress');
@@ -121,6 +119,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', ['jshint', 'qunit']);
 
-  grunt.registerTask('default', ['clean', 'dev_prod_switch', 'replace', 'jshint', 'qunit', 'concat', 'uglify', 'copy', 'replace', 'compress']);
+  grunt.registerTask('default', ['clean', 'jshint', 'qunit', 'copy', 'browserify', 'uglify', 'replace', 'compress']);
 
 };

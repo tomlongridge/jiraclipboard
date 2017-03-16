@@ -1,3 +1,5 @@
+var $ = require('jQuery');
+
 function saveOptions() {
   var jiraURL = $('#jiraURL').val();
   var formatString = $('#formatString').val();

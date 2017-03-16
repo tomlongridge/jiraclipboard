@@ -1,3 +1,5 @@
+var $ = require('jQuery');
+
 var allData = new Map();
 var formatString = null;
 var jiraURL = null;
